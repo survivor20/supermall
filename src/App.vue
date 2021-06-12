@@ -15,6 +15,6 @@
   }
 </script>
 
-<style>
+<style scoped>
   @import 'assets/css/base.css';
 </style>

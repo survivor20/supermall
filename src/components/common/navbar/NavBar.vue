@@ -12,10 +12,12 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
   .nav-bar{
     line-height: 50px;
     display: flex;
+    /* width: 100%; */
+    text-align: center;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
   .left, .right{
@@ -23,6 +25,5 @@ export default {
   }
   .center{
     flex: 1;
-    text-align: center;
   }
 </style>

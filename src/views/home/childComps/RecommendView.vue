@@ -23,7 +23,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .recommend{
     display: flex;
     font-size: 14px;
