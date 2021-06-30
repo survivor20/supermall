@@ -1,7 +1,7 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <scroll class="content" ref="scroll" @scroll='scroll' :probe-type="3 ">
+    <scroll class="content" ref="scroll" @scroll="scroll" :probe-type="3" :pull-up-load="true" @pullUpLoad="loadMore">
       <home-swiper :banners="banners"></home-swiper>
       <recommend-list :recommends='recommends'></recommend-list>
       <feature-view></feature-view>
@@ -52,7 +52,42 @@
       Scroll,
       BackTop,
     },
+    created() {
+      // 1、请求多个数据
+      this.getHomeMultiData()
+      // 2、请求商品数据
+      this.getHomeData('pop')
+      this.getHomeData('new')
+      this.getHomeData('sell')
+    },
+    mounted() {
+      let refresh = this.debounce(this.$refs.scroll.refresh, 50)
+      this.$bus.$on('itemImageLoad', () => {
+        refresh()
+        // this.$refs.scroll.refresh()
+      })
+    },
     methods: {
+      /* 
+        事件监听相关的方法
+      */
+     // 上拉加载商品数据
+     loadMore(){
+       this.getHomeData(this.currentType)
+     },
+
+    // 防抖函数
+     debounce(func, delay){
+       let timer = null
+        return function(...args){
+          if(timer) clearTimeout(timer)
+          timer = setTimeout(() => {
+            func.apply(this, args)
+          }, delay)
+        }
+      },
+
+      // 点击按钮切换
       tabClick(index){
         switch(index){
           case 0: 
@@ -66,6 +101,7 @@
         }
       },
 
+      // 点击按钮回到顶部
       backTop(){
         this.$refs.scroll.backTop(0, 0, 300)
       },
@@ -74,13 +110,14 @@
         this.isShowBackTop = -position.y > 1000
       },
 
+
       /*
         网络请求的方法      
       */
       getHomeMultiData(){
         getHomeMultiData().then(res => {
-        this.banners = res.data.data.banner.list
-        this.recommends = res.data.data.recommend.list
+          this.banners = res.data.data.banner.list
+          this.recommends = res.data.data.recommend.list
        })
       },
       getHomeData(type){
@@ -88,6 +125,7 @@
         getHomeData(type, page).then(res => {
           this.goods[type].list.push(...res.data.data.list)
           this.goods[type].page++
+          this.$refs.scroll.finishPullUp()
         })
       }
     },
@@ -95,12 +133,6 @@
       showGoods(){
         return this.goods[this.currentType].list
       }
-    },
-    created() {
-      this.getHomeMultiData()
-      this.getHomeData('pop')
-      this.getHomeData('new')
-      this.getHomeData('sell')
     },
   }
 </script>
